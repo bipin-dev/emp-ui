@@ -78,3 +78,10 @@
 .login-route-link:hover {
   color: #e2eef8;
 }
+.image-fld {
+  height: 50px;
+  width: 50px;
+  object-fit: contain;
+  border-radius: 50%;
+  background: #ddd;
+}
