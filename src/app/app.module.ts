@@ -9,6 +9,8 @@ import { ActionsComponent } from "./actions/actions.component";
 import { NavsComponent } from "./navs/navs.component";
 import { HttpClientModule } from "@angular/common/http";
 import { FormsModule } from "@angular/forms";
+import { InlineActionsComponent } from "./inline-actions/inline-actions.component";
+import { FormArrayComponent } from './form-array/form-array.component';
 
 @NgModule({
   declarations: [
@@ -17,6 +19,8 @@ import { FormsModule } from "@angular/forms";
     WorkflowComponent,
     ActionsComponent,
     NavsComponent,
+    InlineActionsComponent,
+    FormArrayComponent,
   ],
   imports: [BrowserModule, AppRoutingModule, HttpClientModule, FormsModule],
   providers: [],

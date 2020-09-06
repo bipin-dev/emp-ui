@@ -12,17 +12,30 @@ import { ActivatedRoute, Router } from "@angular/router";
 declare var $: any;
 
 @Component({
-  selector: "app-actions",
-  templateUrl: "./actions.component.html",
+  selector: "app-inline-actions",
+  templateUrl: "./inline-actions.component.html",
 })
-export class ActionsComponent implements OnInit {
-  @Input() actions;
+export class InlineActionsComponent implements OnInit {
+  @Input() action;
+  @Input() recordId;
   @Output() actionCompleted = new EventEmitter();
   formData: any = {};
   formValues: any = {};
-  ArryValues: any = [];
   fields: any = [];
   formId: any;
+  errorMessage: any;
+
+  _isFormOpen = false;
+  @Input()
+  get isFormOpen() {
+    return this._isFormOpen;
+  }
+  set isFormOpen(val) {
+    this._isFormOpen = val;
+    if (val && this.action && this.action.identifier) {
+      this.openForm();
+    }
+  }
 
   constructor(
     private baseService: BaseService,
@@ -31,15 +44,19 @@ export class ActionsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    $("#formActionModal").on("hide.bs.modal", () => {
+    $("#inlineFormActionModal").on("hide.bs.modal", () => {
       this.resetFormValues();
     });
   }
 
-  openForm(action) {
-    let actionUrl = "/action/" + action.identifier;
-    this.formId = action.identifier;
-    this.baseService.get(actionUrl).subscribe((res) => {
+  openForm() {
+    let actionUrl = "/action/" + this.action.identifier;
+    let params = {};
+    if (this.recordId) {
+      params["id"] = this.recordId;
+    }
+    this.formId = this.action.identifier;
+    this.baseService.get(actionUrl, params).subscribe((res) => {
       this.setFields(res);
       this.openActionModal();
     });
@@ -48,19 +65,22 @@ export class ActionsComponent implements OnInit {
   setFields(result) {
     this.formData = Object.assign({}, result);
     this.fields = this.formData["fields"];
+    let values = this.formData.values || {};
+    for (let f of this.fields) {
+      if (values[f.key]) {
+        f.value = values[f.key];
+      }
+    }
   }
 
   openActionModal() {
-    $("#formActionModal").modal("show");
-  }
-
-  onArryValueChange(e) {
-    this.ArryValues = e.values;
+    $("#inlineFormActionModal").modal("show");
   }
 
   closeActionModal() {
-    $("#formActionModal").modal("hide");
+    $("#inlineFormActionModal").modal("hide");
     this.resetFormValues();
+    this.actionCompleted.emit({ reload: true });
   }
 
   resetFormValues() {
@@ -68,46 +88,30 @@ export class ActionsComponent implements OnInit {
     this.formData = {};
     this.formValues = {};
     this.fields = [];
+    this.errorMessage = null;
   }
 
-  async updateVal(value, field, idx) {
+  updateVal(value, field, idx) {
     if (field.key) {
-      if (field.type == "file") {
-        value = await this.doFileUpload(value, field);
-      }
       this.formValues[field.key] = value;
     }
   }
 
-  doFileUpload(event, field) {
-    let file = event.target && event.target.files[0];
-    return new Promise((resolve, reject) => {
-      let reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () =>
-        resolve({
-          data: reader.result,
-          filename: file.name,
-        });
-    });
-  }
-
   saveForm() {
-    let data;
-    if (this.formData.type == "array") {
-      data = Object.assign({}, this.ArryValues);
-    } else {
-      data = Object.assign({}, this.formValues);
-    }
+    let data = Object.assign({}, this.formValues);
     let actionUrl = "/action-save/" + this.formId;
-    let formValues = { identifier: this.formId, values: data };
+    let formValues = {
+      identifier: this.formId,
+      values: data,
+      _id: this.recordId,
+    };
     this.baseService.post(formValues, actionUrl).subscribe((res) => {
       if (res["actionCompleted"]) {
         this.actionCompleted.emit({ reload: true });
         this.closeActionModal();
       }
       if (!res["actionCompleted"]) {
-        console.log("error while saving form happend ", res);
+        this.errorMessage = res["error"];
       }
     });
   }

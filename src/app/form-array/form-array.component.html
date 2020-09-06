@@ -1,0 +1,87 @@
+<div>
+  <ng-container *ngFor="let val of values; let frmIdx = index">
+    <div class="row m-2 p-2" style="background-color: #85737312">
+      <div>
+        <button
+          type="button"
+          class="close"
+          (click)="removeForm(frmIdx)"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <ng-template [ngForOf]="fields" ngFor let-field let-i="index">
+        <div *ngIf="field.type == 'file'" class="form-group col-md-6">
+          <label [attr.for]="'input-file-' + i">{{ field.label }}</label>
+          <input
+            type="file"
+            class="form-control"
+            [ngModel]="field.value || ''"
+            (change)="updateVal($event, field, i, frmIdx)"
+            [attr.id]="'input-file-' + i"
+            [placeholder]="field.label"
+          />
+        </div>
+        <div *ngIf="field.type == 'input'" class="form-group col-md-6">
+          <label [attr.for]="'input-text-' + i">{{ field.label }}</label>
+          <input
+            class="form-control"
+            [ngModel]="field.value || ''"
+            (ngModelChange)="updateVal($event, field, i, frmIdx)"
+            [attr.id]="'input-text-' + i"
+            [placeholder]="field.label"
+          />
+        </div>
+        <div *ngIf="field.type == 'checkbox'" class="form-check mb-3 col-md-6">
+          <input
+            type="checkbox"
+            [attr.id]="'checkbox-' + i"
+            class="form-check-input"
+            [ngModel]="field.value || false"
+            (ngModelChange)="updateVal($event, field, i, frmIdx)"
+          />
+          <label class="form-check-label" [attr.for]="'checkbox-' + i">{{
+            field.label
+          }}</label>
+        </div>
+        <div *ngIf="field.type == 'select'" class="form-group col-md-6">
+          <label [attr.for]="'select-text-' + i">{{ field.label }}</label>
+          <select
+            [ngModel]="field.value || ''"
+            (ngModelChange)="updateVal($event, field, i, frmIdx)"
+            [attr.id]="'select-text-' + i"
+            class="form-control"
+          >
+            <ng-template [ngForOf]="field.values" ngFor let-options>
+              <option>{{ options }}</option>
+            </ng-template>
+          </select>
+        </div>
+        <div *ngIf="field.type == 'number'" class="form-group col-md-6">
+          <label [attr.for]="'input-text-' + i">{{ field.label }}</label>
+          <input
+            type="number"
+            [attr.id]="'number-' + i"
+            class="form-control"
+            [ngModel]="field.value || false"
+            (ngModelChange)="updateVal($event, field, i, frmIdx)"
+          />
+        </div>
+        <div *ngIf="field.type == 'date'" class="form-group col-md-6">
+          <label for="">{{ field.label }}</label>
+          <input
+            type="date"
+            [ngModel]="field.value || ''"
+            (ngModelChange)="updateVal($event, field, i, frmIdx)"
+            [attr.id]="'date-text-' + i"
+            class="form-control"
+          />
+        </div>
+      </ng-template>
+    </div>
+  </ng-container>
+  <button class="btn btn-secondary btn-sm" (click)="addForm()">
+    <span class="fa fa-plus"></span> Add Employees
+  </button>
+</div>

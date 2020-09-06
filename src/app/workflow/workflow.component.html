@@ -5,7 +5,7 @@
 <div *ngIf="error" class="alert alert-danger" role="alert">
   Error: {{ error }}
 </div>
-<div style="color:#17a2b8; font-size: 24px;" class="ml-3 mn-3 mt-3">
+<div style="color: #17a2b8; font-size: 24px" class="ml-3 mn-3 mt-3">
   <strong *ngIf="workflowData && workflowData.header">
     {{ workflowData.header }}
   </strong>
@@ -27,7 +27,12 @@
       <tr>
         <ng-template ngFor let-fld [ngForOf]="displayFields" let-i="fldIdx">
           <td *ngIf="fld.key">
-            {{ item[fld.key] }}
+            <span *ngIf="fld && fld.type == 'image'">
+              <img class="image-fld" [src]="item[fld.key]" alt="" />
+            </span>
+            <span *ngIf="!fld.type">
+              {{ item[fld.key] }}
+            </span>
           </td>
         </ng-template>
         <span>
@@ -35,7 +40,7 @@
             <button
               (click)="openForm(action, item._id)"
               type="button"
-              class="btn btn-outline-primary btn-sm ml-3"
+              class="btn btn-outline-primary btn-sm ml-3 mt-3"
             >
               {{ action.label }}
             </button>
@@ -46,9 +51,9 @@
   </tbody>
 </table>
 
-<!-- <app-inline-actions
+<app-inline-actions
   [action]="currentInlineAction"
   [recordId]="recordId"
   [isFormOpen]="isFormOpen"
   (actionCompleted)="onActionComplete($event)"
-></app-inline-actions> -->
+></app-inline-actions>
